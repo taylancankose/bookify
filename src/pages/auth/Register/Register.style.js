@@ -1,18 +1,25 @@
 import {StyleSheet, Dimensions} from 'react-native';
+import colors from '../../../styles/colors';
 
 export default StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: 'white',
   },
-  header_container: {
-    flex: 0.65,
+  title_container: {
+    marginLeft: 45,
+    margin: 25,
+  },
+  form_container: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  btn_container: {
-    flex: 0.35,
-    justifyContent: 'center',
-    alignItems: 'center',
+
+  title: {
+    fontSize: 30,
+    textAlign: 'left',
+    color: colors.primary,
+    fontFamily: 'Poppins-SemiBold',
   },
   image: {
     width: Dimensions.get('screen').width,
