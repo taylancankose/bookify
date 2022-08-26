@@ -6,8 +6,11 @@ import {
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 import styles from './BtnGooglestyle';
+import Button from '../Button/Button';
+import {useNavigation} from '@react-navigation/native';
 
 function BtnGoogle() {
+  const navigation = useNavigation();
   useEffect(() => {
     GoogleSignin.configure({
       webClientId:
@@ -16,13 +19,13 @@ function BtnGoogle() {
     });
   }, []);
   const [userCredidentials, setUserCredidentials] = useState([]);
-  const [loggedIn, setLoggedIn] = useState(false);
   const signIn = async () => {
     try {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       setUserCredidentials({userInfo});
-      setLoggedIn(true);
+      console.log(userCredidentials);
+      navigation.navigate('Home');
     } catch (error) {
       console.log(error);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
@@ -38,11 +41,11 @@ function BtnGoogle() {
   };
   return (
     <View style={styles.container}>
-      <GoogleSigninButton
+      <Button
+        title="Sign In with Google"
         style={{width: 192, height: 48}}
-        size={GoogleSigninButton.Size.Wide}
-        color={GoogleSigninButton.Color.Dark}
         onPress={signIn}
+        theme="tertiary"
       />
     </View>
   );

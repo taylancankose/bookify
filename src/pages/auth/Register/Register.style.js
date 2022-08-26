@@ -5,13 +5,19 @@ export default StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'white',
+    justifyContent: 'center',
+  },
+  arrow: {
+    marginLeft: 45,
+    marginTop: 25,
   },
   title_container: {
     marginLeft: 45,
-    margin: 25,
+    marginBottom: 25,
+    marginTop: 10,
+    justifyContent: 'center',
   },
   form_container: {
-    justifyContent: 'center',
     alignItems: 'center',
   },
 

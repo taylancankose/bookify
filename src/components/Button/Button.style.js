@@ -4,15 +4,15 @@ import colors from '../../styles/colors';
 const base_style = StyleSheet.create({
   btn_container: {
     width: Dimensions.get('screen').width / 1.25,
-    height: 40,
+    height: 50,
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
     marginTop: 20,
-    borderRadius: 10,
+    borderRadius: 30,
   },
   header: {
-    fontSize: 14,
+    fontSize: 15,
     fontFamily: 'Poppins-Medium',
   },
 });
@@ -45,12 +45,26 @@ export default StyleSheet.create({
     ...base_style,
     btn_container: {
       ...base_style.btn_container,
-      borderWidth: 1,
-      borderColor: colors.gray,
+      borderWidth: 1.2,
+      borderColor: colors.medium_green,
     },
     header: {
       ...base_style.header,
       color: 'black',
+    },
+  }),
+  tertiary: StyleSheet.create({
+    ...base_style,
+    btn_container: {
+      ...base_style.btn_container,
+      borderWidth: 1.2,
+      borderColor: colors.gray,
+      flexDirection: 'row',
+    },
+    header: {
+      ...base_style.header,
+      color: 'black',
+      marginLeft: 10,
     },
   }),
 });
