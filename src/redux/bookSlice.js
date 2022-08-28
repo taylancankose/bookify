@@ -51,15 +51,27 @@ export const bookSlice = createSlice({
   name: 'bookify',
   initialState: {
     bestSellers: [],
-    lists: [],
-    searchQ: '',
+    readLists: [],
     searchResults: [],
+    selectedBook: '',
+    searchQ: '',
     isLoading: false,
     isError: null,
   },
   reducers: {
     results: (state, action) => {
       state.searchQ = action.payload;
+    },
+    addToCart: (state, action) => {
+      state.readLists = [...state.readLists, action.payload];
+    },
+    removeCart: (state, action) => {
+      const index = state.readLists.indexOf(action.payload);
+      state.readLists.splice(index, 1);
+      state.readLists = [...state.readLists];
+    },
+    selectBook: (state, action) => {
+      state.selectedBook = action.payload;
     },
   },
   extraReducers: {
@@ -88,5 +100,5 @@ export const bookSlice = createSlice({
   },
 });
 
-export const {results} = bookSlice.actions;
+export const {results, addToCart, removeCart, selectBook} = bookSlice.actions;
 export default bookSlice.reducer;

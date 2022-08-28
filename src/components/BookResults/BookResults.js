@@ -1,10 +1,12 @@
 import {useNavigation} from '@react-navigation/native';
 import React from 'react';
 import {Image, Pressable, Text, View} from 'react-native';
+import {useDispatch} from 'react-redux';
 import styles from './BookResults.style';
 
 function BookResults({item}) {
   const navigation = useNavigation();
+  const dispatch = useDispatch();
   const pressBook = () => {
     navigation.navigate('BookDetail', {item});
   };

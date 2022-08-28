@@ -1,70 +1,42 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text} from 'react-native';
-import FloatingButton from '../../components/FloatingButton/FloatingButton';
-import PostModal from '../../components/Modal/PostModal';
+import {View, Text, FlatList} from 'react-native';
+import {useSelector} from 'react-redux';
+import ListBooks from '../../components/ListBooks/ListBooks';
+import styles from './MyBooks.style';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
-import parseContentData from '../../utils/parseContentData';
 
 function MyBooks() {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [contentList, setContentList] = useState([]);
+  const [readLists, setReadLists] = useState([]);
+  const getReadLists = () => {
+    firestore()
+      .collection('users')
+      .get()
+      .then(item => {
+        item.forEach(e => {
+          if (e._data.displayName === auth().currentUser.displayName) {
+            const usersCollection = firestore().collection('users');
+            const userDoc = usersCollection.doc(e.id);
+            userDoc.onSnapshot(snap => {
+              setReadLists(snap);
+            });
+          }
+        });
+      });
+  };
 
-  useEffect(async () => {
-    // firestore()
-    //   .collection('posts')
-    //   .get('value', snapshot => {
-    //     const contentData = snapshot.val();
-    //     const parsedData = parseContentData(contentData || {});
-    //     setContentList(parsedData);
-    //   });
+  useEffect(() => {
+    getReadLists();
   }, []);
 
-  const toggleModal = () => {
-    setModalVisible(!modalVisible);
-  };
-
-  const sendContent = async content => {
-    const displayName = auth().currentUser.displayName;
-
-    firestore()
-      .collection('posts')
-      .add({
-        text: content,
-        displayName,
-        date: new Date().toISOString(),
-        like: 0,
-        userId: auth().currentUser.uid,
-      })
-      .then(() => console.log('Added'))
-      .catch(err => console.log(err));
-  };
-
-  const handleLike = item => {
-    database()
-      .ref(`posts/${item.id}`)
-      .update({like: Number(item.like) + 1});
-  };
-
-  const handleDelete = async id => {
-    await database().ref(`posts/${id}`).remove();
-  };
-
-  const handleSendContent = content => {
-    toggleModal();
-    sendContent(content);
-  };
-
-  console.log(contentList);
+  const renderListItem = ({item}) => <ListBooks item={item} />;
 
   return (
-    <View>
-      <Text>MyBooks</Text>
-      <FloatingButton onPress={toggleModal} />
-      <PostModal
-        visible={modalVisible}
-        onClose={toggleModal}
-        onSend={handleSendContent}
+    <View style={styles.container}>
+      <Text style={styles.title}>MyBooks</Text>
+      <FlatList
+        data={readLists?._data?.books?.readLists}
+        renderItem={renderListItem}
       />
     </View>
   );

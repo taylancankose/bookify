@@ -1,10 +1,51 @@
-import React from 'react';
-import {Button, Image, Pressable, SafeAreaView, Text, View} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  Button,
+  Image,
+  Pressable,
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import {useDispatch, useSelector} from 'react-redux';
+import bookSlice, {addToCart, removeCart} from '../../redux/bookSlice';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 import styles from './BookDetail.style';
 
 function BookDetail({route}) {
+  const dispatch = useDispatch();
+  const readLists = useSelector(state => state.bookify.readLists);
+  console.log(readLists);
   const {item} = route.params;
+
+  const [userData, setUserData] = useState();
+
+  console.log('asa', userData?._data?.books?.readLists);
+
+  const handleAdd = () => {
+    dispatch(addToCart(item));
+    firestore()
+      .collection('users')
+      .get()
+      .then(item => {
+        item.forEach(e => {
+          if (e._data.displayName === auth().currentUser.displayName) {
+            const usersCollection = firestore().collection('users');
+            const userDoc = usersCollection.doc(e.id);
+            userDoc.onSnapshot(snap => {
+              setUserData(snap);
+            });
+            firestore()
+              .collection('users')
+              .doc(e.id)
+              .update({books: {readLists}});
+          }
+        });
+      });
+  };
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.inner_container}>
@@ -57,9 +98,17 @@ function BookDetail({route}) {
       </View>
 
       <View style={styles.add_container}>
-        <Pressable style={styles.add_btn}>
-          <Text style={styles.btn_text}>Add to My Books</Text>
-        </Pressable>
+        {userData?._data?.books?.readLists.find(e => e.title === item.title) ? (
+          <TouchableOpacity
+            style={styles.add_btn}
+            onPress={() => dispatch(removeCart(item))}>
+            <Text style={styles.btn_text}>Remove from My Books</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity style={styles.add_btn} onPress={handleAdd}>
+            <Text style={styles.btn_text}>Add to My Books</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </SafeAreaView>
   );

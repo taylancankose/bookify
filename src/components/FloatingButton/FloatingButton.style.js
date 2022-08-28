@@ -3,9 +3,8 @@ import colors from '../../styles/colors';
 
 export default StyleSheet.create({
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    zIndex: 150,
+    justifyContent: 'flex-end',
   },
   btn_container: {
     position: 'absolute',

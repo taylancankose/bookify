@@ -54,6 +54,7 @@ export default StyleSheet.create({
     borderColor: '#FFC41D',
     minWidth: 95,
   },
+
   btn_text: {
     fontFamily: 'Poppins-Regular',
     color: colors.primary,
