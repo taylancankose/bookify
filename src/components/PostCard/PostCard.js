@@ -1,29 +1,62 @@
 import React, {useEffect, useState} from 'react';
-import {Image, Text, View, Pressable} from 'react-native';
+import {Image, Text, View, Pressable, TouchableOpacity} from 'react-native';
 import {formatDistance, parseISO} from 'date-fns';
 import {en} from 'date-fns/locale';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import styles from './PostCard.style';
+import auth from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
+import Empty from '../Empty/Empty';
 
 function PostCard({item}) {
-  console.log('item', item);
-  const getUser = () => {};
+  const [pp, setPP] = useState();
+  const handleDelete = () => {
+    firestore()
+      .collection('posts')
+      .get()
+      .then(item => {
+        item.forEach(e => {
+          if (e._data.userId === auth().currentUser.uid) {
+            firestore().collection('posts').doc(e.id).delete();
+            // postDoc.delete(e.id);
+          } else {
+            return false;
+          }
+        });
+      });
+  };
 
-  useEffect(() => {
-    getUser();
-  }, []);
   const formattedDate = formatDistance(parseISO(item?.date), new Date(), {
     addSuffix: true,
     locale: en,
   });
-  console.log('kitaplar', item.books);
+
+  useEffect(() => {
+    firestore()
+      .collection('users')
+      .get()
+      .then(item => {
+        item.forEach(e => {
+          if (e._data.displayName === auth().currentUser.displayName) {
+            const usersCollection = firestore().collection('users');
+            const userDoc = usersCollection.doc(e.id);
+            userDoc.onSnapshot(snap => {
+              setPP(snap?._data?.image);
+            });
+          }
+        });
+      });
+  }, [pp]);
+
   return (
     <View style={styles.container}>
       <View style={styles.user_container}>
         <Image
           style={styles.img}
           source={{
-            uri: 'https://m.media-amazon.com/images/M/MV5BMTQ3ODE2NTMxMV5BMl5BanBnXkFtZTgwOTIzOTQzMjE@._V1_.jpg',
+            uri:
+              pp ||
+              'https://m.media-amazon.com/images/M/MV5BMTQ3ODE2NTMxMV5BMl5BanBnXkFtZTgwOTIzOTQzMjE@._V1_.jpg',
           }}
         />
         <View style={styles.user_info_container}>
@@ -59,10 +92,9 @@ function PostCard({item}) {
             </View>
           </View>
         </View>
-        <View style={styles.icon_container}>
-          <Icon name="heart-o" size={15} />
-          <Text style={{marginLeft: 5}}>{item.like} Likes</Text>
-        </View>
+        {/* <TouchableOpacity style={styles.icon_container} onPress={handleDelete}>
+          <Icon name="trash" size={15} color={'red'} />
+        </TouchableOpacity> */}
       </View>
     </View>
   );

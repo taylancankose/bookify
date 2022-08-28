@@ -2,50 +2,89 @@ import React, {useState, useEffect} from 'react';
 import {Image, Pressable, Text, View} from 'react-native';
 import {useDispatch} from 'react-redux';
 import auth from '@react-native-firebase/auth';
-import {signOut} from '../../redux/authSlice';
-import colors from '../../styles/colors';
 import styles from './Profile.style';
-
+import firestore from '@react-native-firebase/firestore';
+import Icon from 'react-native-vector-icons/FontAwesome';
 function Profile() {
   const dispatch = useDispatch();
-
-  const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
-  const [image, setImage] = useState();
-
-  function onAuthStateChanged(user) {
-    setUser(user);
-    if (initializing) setInitializing(false);
-  }
+  const [pp, setPP] = useState();
 
   useEffect(() => {
-    const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-    return subscriber; // unsubscribe on unmount
-  }, []);
-
-  if (initializing) return null;
+    firestore()
+      .collection('users')
+      .get()
+      .then(item => {
+        item.forEach(e => {
+          if (e._data.displayName === auth().currentUser.displayName) {
+            const usersCollection = firestore().collection('users');
+            const userDoc = usersCollection.doc(e.id);
+            userDoc.onSnapshot(snap => {
+              setUser(snap?._data);
+            });
+          }
+        });
+      });
+  }, [pp]);
 
   const signOut = () => {
     auth().signOut();
   };
 
   return (
-    <View>
-      <Text>Profile</Text>
-      <Text>{user.displayName}</Text>
-      <Pressable
-        onPress={signOut}
-        style={{justifyContent: 'center', alignItems: 'center'}}>
-        <Image />
-        <Text
-          style={{
-            color: colors.dark_green,
-            fontFamily: 'Poppins-ExtraBold',
-            fontSize: 22,
-          }}>
-          Logout
-        </Text>
-      </Pressable>
+    <View style={styles.container}>
+      <View style={styles.profile_container}>
+        <Image source={{uri: user?.image}} style={styles.pp} />
+        <View>
+          <Text style={styles.username}>{user?.displayName}, 26</Text>
+          <View style={styles.follow_container}>
+            <Text style={styles.followw}>Following: 126</Text>
+            <Text style={styles.follow}>Followers: 5600</Text>
+          </View>
+        </View>
+      </View>
+      <View style={styles.profile_info_container}>
+        <View style={styles.settings_container}>
+          <Text style={styles.settings_text_title}>Email </Text>
+          <Text style={styles.settings_text}>{user?.email}</Text>
+        </View>
+        <View style={styles.settings_container}>
+          <Text style={styles.settings_text_title}>Books</Text>
+          <Text style={styles.settings_text}>
+            {user?.books?.readLists?.length}
+          </Text>
+        </View>
+        <View style={styles.settings_container}>
+          <Text style={styles.settings_text_title}>View My Timeline</Text>
+          <Icon name="angle-right" size={20} style={styles.settings_text} />
+        </View>
+      </View>
+      <View style={styles.second_profile_info_container}>
+        <View style={styles.settings_container}>
+          <Text style={styles.settings_text_title}>Email </Text>
+          <Text style={styles.settings_text}>{user?.email}</Text>
+        </View>
+
+        <View style={styles.settings_container}>
+          <Text style={styles.settings_text_title}>View My Timeline</Text>
+          <Icon name="angle-right" size={20} style={styles.settings_text} />
+        </View>
+      </View>
+
+      <View style={styles.second_profile_info_container}>
+        <View style={styles.settings_container}>
+          <Text style={styles.settings_text_title}>Email </Text>
+          <Text style={styles.settings_text}>{user?.email}</Text>
+        </View>
+
+        <View style={styles.logout_container}>
+          <Pressable
+            onPress={signOut}
+            style={{justifyContent: 'center', alignItems: 'center'}}>
+            <Text style={styles.logout}>Logout</Text>
+          </Pressable>
+        </View>
+      </View>
     </View>
   );
 }

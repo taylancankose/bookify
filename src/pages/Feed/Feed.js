@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, FlatList} from 'react-native';
+import {View, Text, FlatList, TouchableOpacity} from 'react-native';
 import FloatingButton from '../../components/FloatingButton/FloatingButton';
 import PostModal from '../../components/Modal/PostModal';
 import firestore from '@react-native-firebase/firestore';
@@ -8,11 +8,13 @@ import PostCard from '../../components/PostCard/PostCard';
 import styles from './Feed.style';
 import Search from '../../components/Search/Search';
 import {useSelector} from 'react-redux';
+import Empty from '../../components/Empty/Empty';
 function Feed() {
   const [modalVisible, setModalVisible] = useState(false);
   const [contentList, setContentList] = useState([]);
   const [books, setBooks] = useState([]);
   const selectedBook = useSelector(state => state.bookify.selectedBook);
+
   const getPosts = () => {
     const db = firestore();
     db.collection('posts')
@@ -54,7 +56,7 @@ function Feed() {
     toggleModal();
     sendContent(content);
   };
-
+  console.log(selectedBook);
   const sendContent = async (content, id) => {
     const displayName = auth().currentUser.displayName;
     const email = auth().currentUser.email;
@@ -74,30 +76,30 @@ function Feed() {
       .catch(err => console.log(err));
   };
 
-  const handleLike = item => {
-    database()
-      .ref(`posts/${item.id}`)
-      .update({like: Number(item.like) + 1});
-  };
-
-  const handleDelete = async id => {
-    await database().ref(`posts/${id}`).remove();
-  };
-
   const renderPosts = ({item}) => <PostCard item={item} />;
-
+  console.log(contentList);
   return (
     <View style={styles.container}>
       <View style={styles.search}>
         <Search />
+        <PostModal
+          visible={modalVisible}
+          onClose={toggleModal}
+          onSend={handleSendContent}
+        />
       </View>
-      <FloatingButton onPress={toggleModal} />
-      <FlatList data={contentList} renderItem={renderPosts} />
-      <PostModal
-        visible={modalVisible}
-        onClose={toggleModal}
-        onSend={handleSendContent}
-      />
+      {contentList.length >= 1 ? (
+        <>
+          <FlatList data={contentList} renderItem={renderPosts} />
+        </>
+      ) : (
+        <Empty />
+      )}
+      <View style={styles.add_container}>
+        <TouchableOpacity style={styles.add_btn} onPress={toggleModal}>
+          <Text style={styles.btn_text}>Create a Post</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
